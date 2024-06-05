@@ -9,20 +9,27 @@ app = Flask(__name__)
 
 db_user = os.getenv("DB_USER")
 db_password = os.getenv("DB_PASSWORD")
+db_name = "job_search"
+db_host = "localhost"
 
 def get_jobs():
-    conn = psycopg2.connect(
-        dbname="job_search",
-        user=db_user,
-        password=db_password,
-        host="localhost"
-    )
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM job_listings")
-    jobs = cur.fetchall()
-    cur.close()
-    conn.close()
-    return jobs
+    try:
+        conn = psycopg2.connect(
+            dbname=db_name,
+            user=db_user,
+            password=db_password,
+            host=db_host
+        )
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM job_listings")
+        jobs = cur.fetchall()
+        cur.close()
+        conn.close()
+        print("Jobs fetched from the database:", jobs)  # Debugging line
+        return jobs
+    except Exception as e:
+        print(f"Error fetching jobs from the database: {e}")
+        return []
 
 @app.route('/')
 def home():
@@ -34,23 +41,24 @@ def fetch_jobs():
     job_list = []
     for job in jobs:
         job_list.append({
-            "job_id": job[0],
-            "title": job[1],
-            "description": job[2],
-            "employment_type": job[3],
-            "city": job[4],
-            "state": job[5],
-            "is_remote": job[6],
-            "apply_link": job[7],
-            "company_type": job[8],
-            "employer_name": job[9],
-            "publisher": job[10],
-            "posted_at": job[11],
-            "offer_expiration": job[12],
-            "required_experience_in_months": job[13],
-            "latitude": job[14],
-            "longitude": job[15],
+            "job_id": job[1],
+            "title": job[2],
+            "description": job[3],
+            "employment_type": job[4],
+            "city": job[5],
+            "state": job[6],
+            "is_remote": job[7],
+            "apply_link": job[8],
+            "company_type": job[9],
+            "employer_name": job[10],
+            "publisher": job[11],
+            "posted_at": job[12],
+            "offer_expiration": job[13],
+            "required_experience_in_months": job[14],
+            "latitude": job[15],
+            "longitude": job[16],
         })
+    print("Jobs to be returned by the endpoint:", job_list)  # Debugging line
     return jsonify(job_list)
 
 if __name__ == '__main__':
